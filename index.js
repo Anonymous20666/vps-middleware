@@ -396,7 +396,16 @@ bot.action(/pm2_logs_(.+)/, async (ctx) => {
     }
 });
 
-bot.launch().then(() => console.log('✅ VPS Middleware Online.')).catch(err => console.error('Launch failed:', err));
+const launchBot = async () => {
+    try {
+        await bot.telegram.callApi('getUpdates', { offset: -1, limit: 1, timeout: 0 });
+    } catch {}
+    bot.launch().then(() => console.log('✅ VPS Middleware Online.')).catch(err => {
+        console.error('Launch failed:', err.message);
+        setTimeout(launchBot, 5000);
+    });
+};
+launchBot();
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
