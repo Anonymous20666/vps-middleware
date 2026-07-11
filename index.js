@@ -873,5 +873,14 @@ const launchBot = async () => {
 };
 launchBot();
 
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+const stopBotSafely = (signal) => {
+    try {
+        bot.stop(signal);
+    } catch (error) {
+        console.error(`Graceful shutdown skipped after ${signal}:`, error.message);
+    }
+    process.exit(0);
+};
+
+process.once('SIGINT', () => stopBotSafely('SIGINT'));
+process.once('SIGTERM', () => stopBotSafely('SIGTERM'));
